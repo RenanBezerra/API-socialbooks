@@ -3,10 +3,16 @@ package br.com.gft.socialbooks.resources;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
+import javax.validation.Valid;
+
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -37,7 +42,7 @@ public class LivrosResources {
 	}
 	
 	@PostMapping()
-	public ResponseEntity<Void> salvar(@RequestBody Livro livro) {
+	public ResponseEntity<Void> salvar(@Valid @RequestBody Livro livro) {
 		
 		livro = livrosService.salvar(livro);
 		
@@ -51,7 +56,9 @@ public class LivrosResources {
 	public ResponseEntity<?> buscar(@PathVariable("id") Long id) {
 		Optional<Livro> livro = null;
 			livro = livrosService.buscar(id);			
-		return ResponseEntity.status(HttpStatus.OK).body(livro);
+			
+			CacheControl cacheControl = CacheControl.maxAge(20, TimeUnit.SECONDS);
+		return ResponseEntity.status(HttpStatus.OK).cacheControl(cacheControl).body(livro);
 
 		
 	}
@@ -74,6 +81,10 @@ public class LivrosResources {
 	@PostMapping(value = "/{id}/comentarios")
 	public ResponseEntity<Void> adicionarComentario(@PathVariable("id") Long livroId,
 			@RequestBody Comentario comentario) {
+		
+		org.springframework.security.core.Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		
+		comentario.setUsuario(auth.getName());
 		
 		livrosService.salvarComentario(livroId, comentario);
 		
