@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.validation.Valid;
 
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
@@ -26,7 +25,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import br.com.gft.socialbooks.domain.Comentario;
 import br.com.gft.socialbooks.domain.Livro;
 import br.com.gft.socialbooks.services.LivrosService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
+@Api(tags= "Livros")
 @RestController
 @RequestMapping("/livros")
 public class LivrosResources {
@@ -34,15 +37,15 @@ public class LivrosResources {
 	@Autowired
 	private LivrosService livrosService;
 	
-	
+	@ApiOperation("Lista os livros")
 	@GetMapping()
 	public ResponseEntity<List<Livro>> listar() {
 	
 		return ResponseEntity.status(HttpStatus.OK).body(livrosService.listar()); 
 	}
-	
+	@ApiOperation("Salva os livros")
 	@PostMapping()
-	public ResponseEntity<Void> salvar(@Valid @RequestBody Livro livro) {
+	public ResponseEntity<Void> salvar(@ApiParam(name="Corpo",value="Representação de um novo livro")@Valid @RequestBody Livro livro) {
 		
 		livro = livrosService.salvar(livro);
 		
@@ -52,8 +55,9 @@ public class LivrosResources {
 		return ResponseEntity.created(uri).build();
 	}
 	
+	@ApiOperation("Procura os livros")
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<?> buscar(@PathVariable("id") Long id) {
+	public ResponseEntity<?> buscar(@ApiParam(value= "ID de um Livro",example = "1")@PathVariable("id") Long id) {
 		Optional<Livro> livro = null;
 			livro = livrosService.buscar(id);			
 			
@@ -62,24 +66,24 @@ public class LivrosResources {
 
 		
 	}
-	
+	@ApiOperation("Deleta os livros")
 	@DeleteMapping(value = "/{id}")
-	public ResponseEntity<Void> deletar(@PathVariable("id") Long id) {
+	public ResponseEntity<Void> deletar(@ApiParam(value="ID de um Livro",example="1")@PathVariable("id") Long id) {
 			livrosService.deletar(id);
 		return ResponseEntity.noContent().build();
 		
 	}
-	
+	@ApiOperation("Edita os livros")
 	@PutMapping(value ="/{id}")
-	public ResponseEntity<Void> atualizar(@RequestBody Livro livro, @PathVariable("id") Long id) {
+	public ResponseEntity<Void> atualizar(@ApiParam(name="Corpo",value="Representação de um livro com os novos dados")@RequestBody Livro livro, @PathVariable("id") Long id) {
 		livro.setId(id);
 			livrosService.atualizar(livro);
 
 		return ResponseEntity.noContent().build();
 	}
-	
+	@ApiOperation("Salva os comentarios")
 	@PostMapping(value = "/{id}/comentarios")
-	public ResponseEntity<Void> adicionarComentario(@PathVariable("id") Long livroId,
+	public ResponseEntity<Void> adicionarComentario(@ApiParam(name="Corpo",value="Representação de um novo livro")@PathVariable("id") Long livroId,
 			@RequestBody Comentario comentario) {
 		
 		org.springframework.security.core.Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -93,6 +97,7 @@ public class LivrosResources {
 		return ResponseEntity.created(uri).build();
 		
 	}
+	@ApiOperation("Lista os comentarios")
 	@GetMapping(value = "/{id}/comentarios")
 	public ResponseEntity<List<Comentario>> listarComentarios(
 				@PathVariable("id")Long livroId){

@@ -20,7 +20,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import br.com.gft.socialbooks.domain.Autor;
 import br.com.gft.socialbooks.services.AutoresService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
+@Api(tags = "Autores")
 @RestController
 @RequestMapping("/autores")
 public class AutoresResource {
@@ -28,6 +32,7 @@ public class AutoresResource {
 	@Autowired
 	 private AutoresService autoresService;
 	
+	@ApiOperation("Lista os autores")
 	@GetMapping(produces = {
 			MediaType.APPLICATION_JSON_VALUE,
 			MediaType.APPLICATION_XML_VALUE
@@ -36,9 +41,9 @@ public class AutoresResource {
 		List<Autor>autores = autoresService.listar();
 		return ResponseEntity.status(HttpStatus.OK).body(autores);
 	}
-	
+	@ApiOperation("Salva os autores")
 	@PostMapping()
-	public ResponseEntity<Void> salvar (@Valid @RequestBody Autor autor){
+	public ResponseEntity<Void> salvar (@ApiParam(name="corpo",value="Representação de um novo autor")@Valid @RequestBody Autor autor){
 		autor = autoresService.salvar(autor);
 		
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -46,9 +51,9 @@ public class AutoresResource {
 			return ResponseEntity.created(uri).build();
 		
 	}
-	
+	@ApiOperation("Procura os autores")
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<Optional<Autor>> buscar(@PathVariable("id")Long id){
+	public ResponseEntity<Optional<Autor>> buscar(@ApiParam(value="ID de um Autor",example="1")@PathVariable("id")Long id){
 		Optional<Autor> autor = autoresService.buscar(id);
 		
 		return ResponseEntity.status(HttpStatus.OK).body(autor);
