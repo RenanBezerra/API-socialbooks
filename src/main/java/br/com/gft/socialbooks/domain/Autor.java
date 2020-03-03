@@ -16,23 +16,29 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import io.swagger.annotations.ApiModelProperty;
+
 
 @Entity
 public class Autor {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@ApiModelProperty(value = "ID do Autor",example = "1")
 	private Long id;
 	
 	@NotEmpty(message = "O campo nome não pode ser vazio.")
+	@ApiModelProperty(example = "Maria")
 	private String nome;
 	
 	@JsonFormat(pattern = "dd/MM/yyyy")
 	@NotNull(message = "Campo nascimento é de preenchimento obrigatório")
+	@ApiModelProperty(example = "01/01/2020")
 	private Date nascimento;
 	
 	@JsonInclude(Include.NON_NULL)
 	@NotNull(message = "Campo nacionalidade é de preenchimento obrigatório")
+	@ApiModelProperty(example = "Brasileiro")
 	private String nacionalidade;
 	
 	@OneToMany(mappedBy = "autor")
